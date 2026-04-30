@@ -8,12 +8,12 @@
 
 | 항목 | 기술 |
 |------|------|
-| 프레임워크 | React 18 + Vite 5 |
+| 프레임워크 | React 18 + Vite 6 |
 | 스타일링 | CSS Custom Properties (CSS Variables) |
 | 상태 관리 | React useState / useEffect / useCallback |
 | 데이터 저장 | localStorage (체크리스트 진행 상태) |
 | 외부 API | 없음 (완전 정적) |
-| 배포 대상 | 정적 호스팅 (Vercel / Netlify / Cloudflare Pages 등) |
+| 배포 대상 | Cloudflare Workers 정적 자산 배포, 기타 정적 호스팅 |
 
 ---
 
@@ -21,8 +21,8 @@
 
 ### 요구사항
 
-- Node.js 18.x 이상
-- npm 9.x 이상
+- Node.js 20.3.x 이상
+- npm 10.x 이상
 
 ### 초기 설치
 
@@ -53,11 +53,33 @@ npm run preview
 # → http://localhost:4173 에서 빌드 결과 확인
 ```
 
+### Cloudflare Workers 미리보기
+
+```bash
+npm run preview:workers
+# → Wrangler가 dist/ 정적 자산과 SPA fallback 규칙으로 로컬 미리보기 실행
+```
+
 ---
 
 ## 3. 배포 방법
 
-### Vercel (권장)
+### Cloudflare Workers (권장)
+
+이 프로젝트는 `wrangler.toml`을 사용해 `dist/` 폴더를 Workers 정적 자산으로 배포합니다.
+
+**CLI 배포**
+```bash
+npx wrangler login
+npm run deploy
+```
+
+**현재 설정 요약**
+- `assets.directory = "./dist"`
+- `assets.not_found_handling = "single-page-application"`
+- Worker 코드 없이 SPA 자산만 직접 배포
+
+### Vercel
 
 **방법 1: CLI**
 ```bash
@@ -145,6 +167,19 @@ export default defineConfig({
 })
 ```
 
+### Cloudflare Workers 설정 파일
+
+루트의 `wrangler.toml`에서 SPA 정적 자산 동작을 관리합니다:
+
+```toml
+name = "online-store-guide"
+compatibility_date = "2026-04-30"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
+```
+
 ---
 
 ## 6. 유지보수 작업
@@ -181,6 +216,7 @@ npm update
 # 주요 버전 업데이트 (신중히)
 npm install react@latest react-dom@latest
 npm install vite@latest @vitejs/plugin-react@latest
+npm install -D wrangler@latest
 ```
 
 ---
@@ -192,8 +228,8 @@ npm install vite@latest @vitejs/plugin-react@latest
 | 파일 | 크기 | gzip |
 |------|------|------|
 | CSS | 23.26 KB | 4.46 KB |
-| JS | 168.74 KB | 55.09 KB |
-| HTML | 2.08 KB | 0.99 KB |
+| JS | 179.31 KB | 55.44 KB |
+| HTML | 2.61 KB | 0.99 KB |
 
 ### 최적화 방향
 
@@ -263,6 +299,15 @@ npm run build
 # 포트 지정 실행
 npm run dev -- --port 3000
 ```
+
+### Workers 배포 전 검증
+
+```bash
+# Wrangler 설정과 정적 자산 배포 구성이 유효한지 점검
+npx wrangler deploy --dry-run
+```
+
+SPA 라우팅이 필요하므로 `assets.not_found_handling = "single-page-application"` 값이 빠지지 않았는지 확인하세요.
 
 ### localStorage 초기화 (개발 테스트 시)
 

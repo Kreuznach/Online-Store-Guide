@@ -38,8 +38,8 @@
 
 ### 사전 요구사항
 
-- Node.js 18 이상
-- npm 9 이상
+- Node.js 20.3 이상
+- npm 10 이상
 
 ### 개발 서버 실행
 
@@ -58,6 +58,9 @@ npm run build
 
 # 빌드 결과 미리보기
 npm run preview
+
+# Cloudflare Workers 라우팅으로 미리보기
+npm run preview:workers
 ```
 
 빌드 결과물은 `dist/` 폴더에 생성됩니다.
@@ -66,7 +69,18 @@ npm run preview
 
 ## 배포 방법
 
-### Vercel (권장)
+### Cloudflare Workers (권장)
+
+이 프로젝트는 루트의 `wrangler.toml` 설정을 사용해 `dist/` 정적 자산을 Cloudflare Workers에 직접 배포합니다.
+
+```bash
+npx wrangler login
+npm run deploy
+```
+
+SPA 라우팅을 위해 존재하지 않는 경로는 `index.html`로 fallback 되도록 설정되어 있습니다.
+
+### Vercel
 
 ```bash
 npm i -g vercel
@@ -83,6 +97,8 @@ netlify deploy --prod --dir=dist
 ```
 
 ### Cloudflare Pages
+
+정적 호스팅만 필요하면 Pages 배포도 가능합니다.
 
 Cloudflare Pages 대시보드에서 GitHub 저장소 연결 후:
 - **Build command**: `npm run build`
@@ -119,6 +135,7 @@ Online-Store-Guide/
 │   ├── INTRODUCTION.md      # 작업 요청서 원문
 │   ├── CONTENT-GUIDE.md     # 콘텐츠 관리 가이드
 │   └── DEPLOYMENT.md        # 배포 및 운영 가이드
+├── wrangler.toml            # Cloudflare Workers 정적 자산 배포 설정
 ├── index.html               # HTML 템플릿 (SEO/OG 태그 포함)
 ├── vite.config.js
 ├── package.json
@@ -193,10 +210,10 @@ Online-Store-Guide/
 
 ## 기술 스택
 
-- **프레임워크**: React 18 + Vite 5
+- **프레임워크**: React 18 + Vite 6
 - **스타일**: CSS Custom Properties (CSS Variables)
 - **상태 저장**: localStorage (서버 없음)
-- **배포**: 정적 파일 (Vercel / Netlify / Cloudflare Pages 등)
+- **배포**: Cloudflare Workers 정적 자산 배포 + 기타 정적 호스팅 가능
 - **외부 API**: 없음 (완전 정적)
 
 ---
